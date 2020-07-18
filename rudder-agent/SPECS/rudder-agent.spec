@@ -19,8 +19,6 @@
 #=================================================
 # Variables
 #=================================================
-%define real_name            rudder-agent
-%define real_epoch           1398866025
 
 %define rudderdir            /opt/rudder
 %define ruddervardir         /var/rudder
@@ -144,10 +142,11 @@
 # Header
 #=================================================
 Summary: Configuration management and audit tool - agent
-Name: %{real_name}
-Version: %{real_version}
+Name: rudder-agent
+#Version: %{real_version}
+Version: 6.1.1
 Release: 1%{?dist}
-Epoch: %{real_epoch}
+#Epoch: %{real_epoch}
 License: GPLv3
 URL: https://www.rudder.io/
 
@@ -305,6 +304,8 @@ BuildRequires: pcre-devel
 Requires: pcre
 %endif
 
+%global debug_package %{nil}
+
 %description
 Rudder is an open source configuration management and audit solution.
 
@@ -315,9 +316,14 @@ FusionInventory.
 #=================================================
 # Building
 #=================================================
+
+%prep
+
+%setup -n SOURCES
+
 %build
 
-cd %{_sourcedir}
+#cd %{_sourcedir}
 
 # libattr libtool file is looked for in /lib64 but put in /usr/lib64 on RHEL3
 %if 0%{?rhel} && 0%{?rhel} < 4
@@ -339,7 +345,7 @@ find . -type f | xargs sed -i '1,1s|#!/usr/bin/python3|#!/usr/bin/python2|'
 #=================================================
 %install
 
-cd %{_sourcedir}
+#cd %{_sourcedir}
 
 #### Use systemd everywhere except on: AIX, RHEL<7, SLES<12, Fedora<15
 %if "%{?aix}"

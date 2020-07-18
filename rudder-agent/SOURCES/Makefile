@@ -19,7 +19,7 @@
 .DEFAULT_GOAL := build
 
 # Versions to use
-RUDDER_VERSION_TO_PACKAGE =
+RUDDER_VERSION_TO_PACKAGE = 6.1.1
 RUDDER_MAJOR_VERSION := $(shell echo ${RUDDER_VERSION_TO_PACKAGE} | cut -d'.' -f 1-2)
 
 FUSION_RELEASE = 2.4.3
@@ -625,7 +625,7 @@ DEPS_CACHE_PARAMETERS = --with-env name=dependencies lmdb=$(LMDB_SHA1) openssl=$
 CFENGINE_DEPS = $(shell ../../build-caching get dependencies/ $(DEPS_CACHE_PARAMETERS) || echo $(BUILD_DEPS))
 build-cfengine: $(CFENGINE_DEPS) cfengine-source build-cfengine-stamp
 	# save into cache if we built it
-	if [ "$(CFENGINE_DEPS)" != "" ]; then ../../build-caching put dependencies/ $(DEPS_CACHE_PARAMETERS); fi
+	if [ "$(CFENGINE_DEPS)" != "" ] && [ -f ../../build-caching ] ; then ../../build-caching put dependencies/ $(DEPS_CACHE_PARAMETERS); fi
 
 build-cfengine-stamp:
 	# If there is no configure, bootstrap with autogen.sh first
@@ -718,7 +718,7 @@ FUSION_CACHE_PARAMETERS = --with-env name=fusion source=$(FUSION_SHA1) patches=$
 FUSION_INSTALL = $(shell ../../build-caching get $(DESTDIR)/ $(FUSION_CACHE_PARAMETERS) || echo install-fusion-real)
 install-fusion: $(FUSION_INSTALL)
 	# save into cache if we built it
-	if [ "$(FUSION_INSTALL)" != "" ]; then ../../build-caching put $(DESTDIR)/fusion $(FUSION_CACHE_PARAMETERS); fi
+	if [ "$(FUSION_INSTALL)" != "" ]  && [ -f ../../build-caching ]; then ../../build-caching put $(DESTDIR)/fusion $(FUSION_CACHE_PARAMETERS); fi
 	cp -r $(DESTDIR)/fusion/* $(DESTDIR)/ && rm -rf $(DESTDIR)/fusion
 
 install-fusion-real: fusioninventory-agent fusion-modules
@@ -737,8 +737,8 @@ endif
 	cd fusioninventory-agent && PERL_MM_USE_DEFAULT=1 $(PERL) -I. Makefile.PL --default PREFIX=$(RUDDER_DIR)
 	cd fusioninventory-agent && $(MAKE) install DESTDIR=$(DESTDIR)/fusion
 	# bug in fusion installer that doesn't set the right owner to some files
-	chown root $(DESTDIR)/fusion/opt/rudder/share/fusioninventory
-	chown root $(DESTDIR)/fusion/opt/rudder/share/fusioninventory/html
+	#chown root $(DESTDIR)/fusion/opt/rudder/share/fusioninventory
+	#chown root $(DESTDIR)/fusion/opt/rudder/share/fusioninventory/html
 	# fusion configuration file is never used, do not include it to avoid mistakes
 	rm -rf $(DESTDIR)/fusion/opt/rudder/etc/fusioninventory
 	mkdir -p $(DESTDIR)/fusion/opt/rudder/lib/perl5/
